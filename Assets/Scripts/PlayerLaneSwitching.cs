@@ -6,14 +6,35 @@ using UnityEngine.InputSystem;
 
 public class PlayerLaneSwitching : MonoBehaviour
 {
-    public Vector3[] lanePositions;
+    public Transform Player;
+    public int CurrentLane = 0;
+    public Vector3[] LanePositions;
 
-    private Vector2 move;
-
-    // This method gets called automatically by PlayerInput
-    public void OnMove(InputAction.CallbackContext ctx)
+    public void SetLane(int NewLane)
     {
-        move = ctx.ReadValue<Vector2>();
-        Debug.Log(move);
+        if (NewLane >= 0 && NewLane < LanePositions.Length)
+        {
+            Player.position = LanePositions[NewLane];
+            CurrentLane = NewLane;
+        }
+    }
+
+    public void MoveLane(int Direction)
+    {
+        int NewLane = CurrentLane + Direction;
+
+        SetLane(NewLane);
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            MoveLane(-1);
+        }
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            MoveLane(1);
+        }
     }
 }

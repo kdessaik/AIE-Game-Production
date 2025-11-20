@@ -354,7 +354,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e584d6d325747104dab0a0162bb80c2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLaneSwitching
-  lanePositions:
+  Player: {fileID: 1022698119}
+  CurrentLane: 1
+  LanePositions:
   - {x: -1.5, y: 1, z: -3}
   - {x: 0, y: 1, z: -3}
   - {x: 1.5, y: 1, z: -3}
