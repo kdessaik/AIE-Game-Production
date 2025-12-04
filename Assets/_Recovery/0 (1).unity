@@ -408,7 +408,11 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
+<<<<<<< HEAD
+  m_IsActive: 0
+=======
   m_IsActive: 1
+>>>>>>> e10bf743927be451fd0bf1e19be063ab8f574824
 --- !u!114 &136668149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -696,7 +700,11 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
+<<<<<<< HEAD
+  m_IsActive: 0
+=======
   m_IsActive: 1
+>>>>>>> e10bf743927be451fd0bf1e19be063ab8f574824
 --- !u!114 &706720301
 MonoBehaviour:
   m_ObjectHideFlags: 0
