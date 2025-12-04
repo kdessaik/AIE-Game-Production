@@ -273,7 +273,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &136668149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -958,6 +958,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &776539142
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1646981259178978, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_Name
+      value: Car_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4870167790249810, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.4561431
+      objectReference: {fileID: 0}
+    - target: {fileID: 4870167790249810, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4870167790249810, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4.1776056
+      objectReference: {fileID: 0}
+    - target: {fileID: 4870167790249810, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4870167790249810, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4870167790249810, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4870167790249810, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4870167790249810, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4870167790249810, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4870167790249810, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0ae65270c30153049ab49eb3ebf070d6, type: 3}
 --- !u!1 &778129599
 GameObject:
   m_ObjectHideFlags: 0
@@ -1089,16 +1146,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5881eede08114ba42a4fe1b640a6ee1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleSpawner
-  lanes:
-  - {fileID: 1587313535}
-  - {fileID: 1120615432}
-  - {fileID: 919838371}
-  obstaclePrefabs:
-  - {fileID: 4627151886899001673, guid: 58540c5ebc708c741ad983a1c6c45af6, type: 3}
-  - {fileID: 7858779315059946860, guid: 77a9ca2c89bfd1e4d9eddd55b5f94996, type: 3}
-  - {fileID: 1423279159755481153, guid: d2cec900bbd07d340b1da4eb87cbd6eb, type: 3}
-  minSpawnTime: 1
-  maxSpawnTime: 2.5
+  poolOrder: 
+  spawnPoints: []
+  baseSpawnInterval: 1.8
+  randomSpawnVariance: 1
+  difficultyRampEverySeconds: 10
+  minSpawnInterval: 0.6
+  spawnSpeedMin: 8
+  spawnSpeedMax: 14
 --- !u!4 &836350931
 Transform:
   m_ObjectHideFlags: 0
@@ -1399,6 +1454,7 @@ MonoBehaviour:
   - {x: -1.5, y: 1, z: -3}
   - {x: 0, y: 1, z: -3}
   - {x: 1.5, y: 1, z: -3}
+  bumper: {fileID: 0}
 --- !u!1 &1120615431
 GameObject:
   m_ObjectHideFlags: 0
@@ -1780,6 +1836,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 76d92c6c798392c4f8f0d460d3fba462, type: 3}
       propertyPath: m_Name
       value: Road
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 76d92c6c798392c4f8f0d460d3fba462, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -2418,3 +2478,4 @@ SceneRoots:
   - {fileID: 836350931}
   - {fileID: 1645926168}
   - {fileID: 311361027}
+  - {fileID: 776539142}
