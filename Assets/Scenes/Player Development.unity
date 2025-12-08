@@ -1107,10 +1107,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da5799f454a080947bb9ef1ac16ea667, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoadLaneManager
-  player: {fileID: 1431202403}
   playerSpeed: 10
-  resetZ: -50
-  startZ: 0
+  resetY: -25000
+  segmentHeight: 25000
 --- !u!1 &581372999
 GameObject:
   m_ObjectHideFlags: 0
