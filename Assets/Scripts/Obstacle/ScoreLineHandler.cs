@@ -1,3 +1,4 @@
+//Esther Namulen
 using UnityEngine;
 
 public class ScoreLineHandler : MonoBehaviour
@@ -6,23 +7,22 @@ public class ScoreLineHandler : MonoBehaviour
 
     void Reset()
     {
-        // try to auto-find GameManager if exists in scene
-        if (gameManager == null)
-            gameManager = FindObjectOfType<GameManager>();
+#if UNITY_2021_2_OR_NEWER
+        if (gameManager == null) gameManager = GameObject.FindFirstObjectByType<GameManager>();
+#else
+        if (gameManager == null) gameManager = FindObjectOfType<GameManager>();
+#endif
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Obstacle"))
-        {
-            // mark scored on obstacle if it has AI
-            var ai = other.GetComponent<ObstacleAI>();
-            if (ai != null) ai.MarkScored();
+        if (!other.CompareTag("Obstacle")) return;
 
-            gameManager?.AddScore(1);
+        var ai = other.GetComponent<ObstacleAI>();
+        if (ai != null) ai.MarkScored();
 
-            // return obstacle to pool
-            PoolManager.Instance?.ReturnToPool(other.gameObject);
-        }
+        gameManager?.AddScore(1);
+
+        PoolManager.Instance?.ReturnToPool(other.gameObject);
     }
 }

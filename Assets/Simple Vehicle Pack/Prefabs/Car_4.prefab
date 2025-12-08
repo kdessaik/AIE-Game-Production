@@ -454,7 +454,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4870167790249810}
-  - component: {fileID: 7687494861215683197}
   - component: {fileID: 713918759990193619}
   - component: {fileID: 8517229705042040523}
   m_Layer: 0
@@ -484,21 +483,6 @@ Transform:
   - {fileID: 4907551743973842}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7687494861215683197
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1646981259178978}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e584d6d325747104dab0a0162bb80c2b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerLaneSwitching
-  Player: {fileID: 4870167790249810}
-  CurrentLane: 0
-  LanePositions: []
 --- !u!65 &713918759990193619
 BoxCollider:
   m_ObjectHideFlags: 0
