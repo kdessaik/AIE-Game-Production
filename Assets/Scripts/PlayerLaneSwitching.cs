@@ -35,7 +35,12 @@ public class PlayerLaneSwitching : MonoBehaviour
 
         // Ensure starting lane position
         if (CurrentLane < 0 || CurrentLane >= LanePositions.Length) CurrentLane = 1;
-        Player.position = LanePositions[CurrentLane];
+
+        // Set starting position and FORCE Y = 0.9f
+        Vector3 startPos = LanePositions[CurrentLane];
+        startPos.y = 0.9f;
+        Player.position = startPos;
+
         UpdateBumperVisibility();
     }
 
@@ -95,7 +100,6 @@ public class PlayerLaneSwitching : MonoBehaviour
         if (newLane >= 0 && newLane < LanePositions.Length)
         {
             CurrentLane = newLane;
-            // don't teleport; SmoothMoveToLane will handle moving Player.position
         }
     }
 
@@ -107,10 +111,20 @@ public class PlayerLaneSwitching : MonoBehaviour
 
     void SmoothMoveToLane()
     {
+        // Get target lane
         Vector3 target = LanePositions[CurrentLane];
+
+        // Force the correct Y height
+        target.y = 0.9f;
+
         // SmoothDamp for nice feel
         Player.position = Vector3.SmoothDamp(Player.position, target, ref velocity, 1f / moveSpeed);
+
         // Snap when close
+        Vector3 correctedCurrent = Player.position;
+        correctedCurrent.y = 0.3f; // force Y every frame
+        Player.position = correctedCurrent;
+
         if (Vector3.Distance(Player.position, target) <= snapThreshold)
         {
             Player.position = target;
@@ -121,10 +135,7 @@ public class PlayerLaneSwitching : MonoBehaviour
     // ---------------- Death & Invincibility ----------------
     private void ForceKill()
     {
-        // destroy full GameObject (safe)
         Destroy(gameObject);
-
-        // TODO: trigger UI/game over events here, e.g. GameManager.Instance.OnPlayerDied();
     }
 
     public void TryKill()
@@ -169,15 +180,11 @@ public class PlayerLaneSwitching : MonoBehaviour
         CallAfterDelay(() => DisableInvincibility(), seconds);
     }
 
-    // convenience overload:
     public void MakeInvincibleDefault()
     {
         MakeInvincibleForSeconds(defaultInvincibleSeconds);
     }
 
-    // ---------------- Collision with obstacles ----------------
-    // Use trigger or collision depending on your obstacle setup.
-    // If obstacles have tag "Obstacle" we'll use that here.
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Obstacle"))
