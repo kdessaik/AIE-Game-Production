@@ -1,40 +1,21 @@
-// Made by Samuel Lawrence
-
 using UnityEngine;
 
 public class InvinciblePickup : MonoBehaviour
 {
-    public int speed = 10;
-    public Vector3 direction;
-    public float invincibilityDuration = 5f;
-    private Rigidbody rb;
-
-    void Start()
-    {
-        rb = GetComponent<Rigidbody>();
-    }
-
-    void FixedUpdate()
-    {
-        rb.linearVelocity = direction * speed;
-    }
+    [Header("Pickup Settings")]
+    public float invincibilityDuration = 3f;  // seconds
 
     private void OnTriggerEnter(Collider other)
     {
-        GameObject obj = other.gameObject;
-        
-        if (obj != null)
+        // Check if the player touched the pickup
+        PlayerLaneSwitching player = other.GetComponent<PlayerLaneSwitching>();
+        if (player != null)
         {
-            if (obj.tag == "Player")
-            {
-                PlayerLaneSwitching playerScript = obj.GetComponent<PlayerLaneSwitching>();
+            // Make player invincible
+            player.MakeInvincibleForSeconds(invincibilityDuration);
 
-                if (playerScript != null)
-                {
-                    playerScript.MakeInvincibleForSeconds(invincibilityDuration);
-                    Destroy(gameObject);
-                }
-            }
+            // Optionally destroy the pickup
+            Destroy(gameObject);
         }
     }
 }

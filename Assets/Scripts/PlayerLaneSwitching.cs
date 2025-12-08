@@ -1,203 +1,166 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
 public class PlayerLaneSwitching : MonoBehaviour
 {
     [Header("References")]
-    public Transform Player;                 // visible mesh/graphic to move
-    public GameObject bumper;                // invincibility visual
+    public Transform Player;
+    public GameObject bumper; // visual for invincibility
 
     [Header("Lanes")]
-    public Vector3[] LanePositions = new Vector3[3]
-    {
-        new Vector3(-3f, 0f, 0f),
-        new Vector3( 0f, 0f, 0f),
-        new Vector3( 3f, 0f, 0f)
-    };
-    public int CurrentLane = 1;              // start in middle by default
+    public Vector3[] LanePositions = new Vector3[3] { new Vector3(-3, 0, 0), new Vector3(0, 0, 0), new Vector3(3, 0, 0) };
+    public int CurrentLane = 1;
+    public float LaneMoveSpeed = 10f;
+    public float SnapThreshold = 0.05f;
 
     [Header("Movement")]
-    public float moveSpeed = 10f;            // higher = faster smoothing
-    public float snapThreshold = 0.05f;      // consider reached when closer than this
+    public float ForwardSpeed = 5f;
+    public float JumpHeight = 2f;       // height of hop
+    public float JumpSpeed = 5f;        // speed of hop
+    public float GroundY = 0.9f;
 
     [Header("Invincibility")]
     public bool Invincible { get; private set; } = false;
-    public float defaultInvincibleSeconds = 3f;
 
-    // Private smoothing state
-    Vector3 velocity = Vector3.zero;
+    private Vector3 velocity = Vector3.zero;
+    private bool isGrounded = true;
 
     void Start()
     {
-        // Ensure Player reference — if not provided, assume this transform
         if (Player == null) Player = transform;
 
-        // Ensure starting lane position
-        if (CurrentLane < 0 || CurrentLane >= LanePositions.Length) CurrentLane = 1;
-
-        // Set starting position and FORCE Y = 0.9f
+        // Start at middle lane
         Vector3 startPos = LanePositions[CurrentLane];
-        startPos.y = 0.9f;
+        startPos.y = GroundY;
         Player.position = startPos;
 
-        UpdateBumperVisibility();
+        UpdateBumper();
     }
 
     void Update()
     {
-        HandleKeyboardInput();
-        HandleTouchSwipe();   // works on mobile
-        SmoothMoveToLane();
+        HandleLaneInput();
+        HandleForwardBackInput();
+        HandleJumpInput();
+        SmoothLaneMovement();
     }
 
-    // ---------------- Input ----------------
-    void HandleKeyboardInput()
+    // ---------------- Lane Switching ----------------
+    void HandleLaneInput()
     {
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-            MoveLane(-1);
-        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-            MoveLane(1);
+            ChangeLane(-1);
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+            ChangeLane(1);
     }
 
-    // Simple touch swipe left/right (one-finger)
-    Vector2 touchStart;
-    bool touchActive = false;
-    void HandleTouchSwipe()
+    void ChangeLane(int direction)
     {
-        if (Input.touchCount == 0)
-        {
-            touchActive = false;
-            return;
-        }
+        CurrentLane = Mathf.Clamp(CurrentLane + direction, 0, LanePositions.Length - 1);
+    }
 
-        Touch t = Input.GetTouch(0);
-        if (t.phase == TouchPhase.Began)
-        {
-            touchStart = t.position;
-            touchActive = true;
-        }
-        else if (touchActive && (t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled))
-        {
-            Vector2 delta = t.position - touchStart;
-            float absX = Mathf.Abs(delta.x);
-            float absY = Mathf.Abs(delta.y);
+    void SmoothLaneMovement()
+    {
+        Vector3 targetPos = new Vector3(LanePositions[CurrentLane].x, Player.position.y, Player.position.z);
+        Player.position = Vector3.SmoothDamp(Player.position, targetPos, ref velocity, 1f / LaneMoveSpeed);
 
-            // require horizontal swipe bigger than vertical and threshold
-            if (absX > absY && absX > 50f)
-            {
-                if (delta.x > 0) MoveLane(1);
-                else MoveLane(-1);
-            }
-
-            touchActive = false;
+        if (Mathf.Abs(Player.position.x - targetPos.x) <= SnapThreshold)
+        {
+            Player.position = new Vector3(targetPos.x, Player.position.y, Player.position.z);
+            velocity.x = 0f;
         }
     }
 
-    // ---------------- Lane movement ----------------
-    public void SetLane(int newLane)
+    // ---------------- Forward/Back ----------------
+    void HandleForwardBackInput()
     {
-        if (newLane >= 0 && newLane < LanePositions.Length)
+        float moveZ = 0f;
+        if (Input.GetKey(KeyCode.W)) moveZ = 1f;
+        if (Input.GetKey(KeyCode.S)) moveZ = -1f;
+
+        Player.Translate(Vector3.forward * moveZ * ForwardSpeed * Time.deltaTime, Space.World);
+    }
+
+    // ---------------- Jump (Hop) ----------------
+    void HandleJumpInput()
+    {
+        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && isGrounded)
         {
-            CurrentLane = newLane;
+            StopAllCoroutines();
+            StartCoroutine(HopRoutine());
         }
     }
 
-    public void MoveLane(int direction)
+    private IEnumerator HopRoutine()
     {
-        int newLane = Mathf.Clamp(CurrentLane + direction, 0, LanePositions.Length - 1);
-        SetLane(newLane);
-    }
+        isGrounded = false;
 
-    void SmoothMoveToLane()
-    {
-        // Get target lane
-        Vector3 target = LanePositions[CurrentLane];
+        Vector3 startPos = Player.position;
+        Vector3 targetPos = startPos + new Vector3(0, JumpHeight, 0);
 
-        // Force the correct Y height
-        target.y = 0.9f;
-
-        // SmoothDamp for nice feel
-        Player.position = Vector3.SmoothDamp(Player.position, target, ref velocity, 1f / moveSpeed);
-
-        // Snap when close
-        Vector3 correctedCurrent = Player.position;
-        correctedCurrent.y = 0.3f; // force Y every frame
-        Player.position = correctedCurrent;
-
-        if (Vector3.Distance(Player.position, target) <= snapThreshold)
+        // Move up
+        while (Vector3.Distance(Player.position, targetPos) > 0.01f)
         {
-            Player.position = target;
-            velocity = Vector3.zero;
+            Player.position = Vector3.MoveTowards(Player.position, targetPos, JumpSpeed * Time.deltaTime);
+            yield return null;
         }
-    }
 
-    // ---------------- Death & Invincibility ----------------
-    private void ForceKill()
-    {
-        Destroy(gameObject);
-    }
-
-    public void TryKill()
-    {
-        if (!Invincible)
+        // Move back down
+        targetPos = new Vector3(Player.position.x, GroundY, Player.position.z);
+        while (Vector3.Distance(Player.position, targetPos) > 0.01f)
         {
-            ForceKill();
+            Player.position = Vector3.MoveTowards(Player.position, targetPos, JumpSpeed * Time.deltaTime);
+            yield return null;
         }
+
+        Player.position = new Vector3(Player.position.x, GroundY, Player.position.z);
+        isGrounded = true;
     }
 
-    private IEnumerator Call(Action func, float delay)
+    // ---------------- Invincibility ----------------
+    public void MakeInvincibleForSeconds(float seconds)
     {
-        yield return new WaitForSeconds(delay);
-        func?.Invoke();
+        EnableInvincibility();
+        StartCoroutine(DisableInvincibilityAfter(seconds));
     }
 
-    private void CallAfterDelay(Action func, float delay)
+    private IEnumerator DisableInvincibilityAfter(float seconds)
     {
-        StartCoroutine(Call(func, delay));
-    }
-
-    void UpdateBumperVisibility()
-    {
-        if (bumper != null) bumper.SetActive(Invincible);
+        yield return new WaitForSeconds(seconds);
+        DisableInvincibility();
     }
 
     void EnableInvincibility()
     {
         Invincible = true;
-        UpdateBumperVisibility();
+        UpdateBumper();
     }
 
     void DisableInvincibility()
     {
         Invincible = false;
-        UpdateBumperVisibility();
+        UpdateBumper();
     }
 
-    public void MakeInvincibleForSeconds(float seconds)
+    void UpdateBumper()
     {
-        EnableInvincibility();
-        CallAfterDelay(() => DisableInvincibility(), seconds);
+        if (bumper != null) bumper.SetActive(Invincible);
     }
 
-    public void MakeInvincibleDefault()
-    {
-        MakeInvincibleForSeconds(defaultInvincibleSeconds);
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Obstacle"))
-        {
-            TryKill();
-        }
-    }
-
+    // ---------------- Collision / Death ----------------
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Obstacle"))
         {
             TryKill();
+        }
+    }
+
+    void TryKill()
+    {
+        if (!Invincible)
+        {
+            Destroy(gameObject); // player dies
         }
     }
 }
