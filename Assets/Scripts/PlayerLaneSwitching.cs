@@ -1,166 +1,98 @@
+// Made by Samuel Lawrence
+
+using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerLaneSwitching : MonoBehaviour
 {
-    [Header("References")]
     public Transform Player;
-    public GameObject bumper; // visual for invincibility
+    public int CurrentLane = 0;
+    public Vector3[] LanePositions;
 
-    [Header("Lanes")]
-    public Vector3[] LanePositions = new Vector3[3] { new Vector3(-3, 0, 0), new Vector3(0, 0, 0), new Vector3(3, 0, 0) };
-    public int CurrentLane = 1;
-    public float LaneMoveSpeed = 10f;
-    public float SnapThreshold = 0.05f;
-
-    [Header("Movement")]
-    public float ForwardSpeed = 5f;
-    public float JumpHeight = 2f;       // height of hop
-    public float JumpSpeed = 5f;        // speed of hop
-    public float GroundY = 0.9f;
-
-    [Header("Invincibility")]
     public bool Invincible { get; private set; } = false;
+    public GameObject bumper;
 
-    private Vector3 velocity = Vector3.zero;
-    private bool isGrounded = true;
-
-    void Start()
+    // sets the player's lane, 0 for left lane, 1 for middle lane, 2 for right lane
+    public void SetLane(int NewLane)
     {
-        if (Player == null) Player = transform;
+        if (NewLane >= 0 && NewLane < LanePositions.Length)
+        {
+            Player.position = LanePositions[NewLane];
+            CurrentLane = NewLane;
+        }
+    }
 
-        // Start at middle lane
-        Vector3 startPos = LanePositions[CurrentLane];
-        startPos.y = GroundY;
-        Player.position = startPos;
+    // moves the player's lane in a direction, -1 for left, 1 for right.
+    public void MoveLane(int Direction)
+    {
+        int NewLane = CurrentLane + Direction;
 
-        UpdateBumper();
+        SetLane(NewLane);
     }
 
     void Update()
     {
-        HandleLaneInput();
-        HandleForwardBackInput();
-        HandleJumpInput();
-        SmoothLaneMovement();
-    }
-
-    // ---------------- Lane Switching ----------------
-    void HandleLaneInput()
-    {
-        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-            ChangeLane(-1);
-        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-            ChangeLane(1);
-    }
-
-    void ChangeLane(int direction)
-    {
-        CurrentLane = Mathf.Clamp(CurrentLane + direction, 0, LanePositions.Length - 1);
-    }
-
-    void SmoothLaneMovement()
-    {
-        Vector3 targetPos = new Vector3(LanePositions[CurrentLane].x, Player.position.y, Player.position.z);
-        Player.position = Vector3.SmoothDamp(Player.position, targetPos, ref velocity, 1f / LaneMoveSpeed);
-
-        if (Mathf.Abs(Player.position.x - targetPos.x) <= SnapThreshold)
+        if (Input.GetKeyDown(KeyCode.A))
         {
-            Player.position = new Vector3(targetPos.x, Player.position.y, Player.position.z);
-            velocity.x = 0f;
+            MoveLane(-1);
+        }
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            MoveLane(1);
         }
     }
 
-    // ---------------- Forward/Back ----------------
-    void HandleForwardBackInput()
+    private void ForceKill()
     {
-        float moveZ = 0f;
-        if (Input.GetKey(KeyCode.W)) moveZ = 1f;
-        if (Input.GetKey(KeyCode.S)) moveZ = -1f;
+        Destroy(Player);
 
-        Player.Translate(Vector3.forward * moveZ * ForwardSpeed * Time.deltaTime, Space.World);
+        // TODO: display to the player that they have died on the UI (with help from others)
     }
 
-    // ---------------- Jump (Hop) ----------------
-    void HandleJumpInput()
+    // kills the player if they are not invincible. obstacle scripts can call this function when the player collides with an obstacle.
+    public void TryKill()
     {
-        if ((Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)) && isGrounded)
+        if (Invincible == false)
         {
-            StopAllCoroutines();
-            StartCoroutine(HopRoutine());
+            ForceKill();
         }
     }
 
-    private IEnumerator HopRoutine()
+    private IEnumerator Call(Action func, float delay)
     {
-        isGrounded = false;
+        yield return new WaitForSeconds(delay);
 
-        Vector3 startPos = Player.position;
-        Vector3 targetPos = startPos + new Vector3(0, JumpHeight, 0);
-
-        // Move up
-        while (Vector3.Distance(Player.position, targetPos) > 0.01f)
-        {
-            Player.position = Vector3.MoveTowards(Player.position, targetPos, JumpSpeed * Time.deltaTime);
-            yield return null;
-        }
-
-        // Move back down
-        targetPos = new Vector3(Player.position.x, GroundY, Player.position.z);
-        while (Vector3.Distance(Player.position, targetPos) > 0.01f)
-        {
-            Player.position = Vector3.MoveTowards(Player.position, targetPos, JumpSpeed * Time.deltaTime);
-            yield return null;
-        }
-
-        Player.position = new Vector3(Player.position.x, GroundY, Player.position.z);
-        isGrounded = true;
+        func.Invoke();
     }
 
-    // ---------------- Invincibility ----------------
+    private void CallAfterDelay(Action func, float delay)
+    {
+        StartCoroutine(Call(func, delay));
+    }
+
+    private void UpdateBumperVisibility()
+    {
+        bumper.SetActive(Invincible);
+    }
+
+    private void EnableInvincibility()
+    {
+        Invincible = true;
+        UpdateBumperVisibility();
+    }
+
+    private void DisableInvincibility()
+    {
+        Invincible = false;
+        UpdateBumperVisibility();
+    }
+
     public void MakeInvincibleForSeconds(float seconds)
     {
         EnableInvincibility();
-        StartCoroutine(DisableInvincibilityAfter(seconds));
-    }
 
-    private IEnumerator DisableInvincibilityAfter(float seconds)
-    {
-        yield return new WaitForSeconds(seconds);
-        DisableInvincibility();
-    }
-
-    void EnableInvincibility()
-    {
-        Invincible = true;
-        UpdateBumper();
-    }
-
-    void DisableInvincibility()
-    {
-        Invincible = false;
-        UpdateBumper();
-    }
-
-    void UpdateBumper()
-    {
-        if (bumper != null) bumper.SetActive(Invincible);
-    }
-
-    // ---------------- Collision / Death ----------------
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Obstacle"))
-        {
-            TryKill();
-        }
-    }
-
-    void TryKill()
-    {
-        if (!Invincible)
-        {
-            Destroy(gameObject); // player dies
-        }
+        CallAfterDelay(() => DisableInvincibility(), seconds);
     }
 }
