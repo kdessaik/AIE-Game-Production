@@ -1,7 +1,4 @@
-// Made by Kamabale Kibeho Dessai
 using UnityEngine;
-
-
 using UnityEngine.SceneManagement;
 using TMPro; // remove if not using TextMeshPro
 
@@ -11,12 +8,21 @@ public class MainMenu : MonoBehaviour
 
     void Start()
     {
+        // Display best score
         int best = PlayerPrefs.GetInt("BestScore", 0);
         if (bestScoreText != null) bestScoreText.text = "Best Score: " + best;
+
+        // Mute the game music if it exists
+        AudioSource gameMusic = GameObject.Find("GameMusic")?.GetComponent<AudioSource>();
+        if (gameMusic != null)
+        {
+            gameMusic.mute = true;
+        }
     }
 
     public void StartGame()
     {
+        // Load the game scene
         SceneManager.LoadScene(1); // index 1 -> Game Scene
     }
 
