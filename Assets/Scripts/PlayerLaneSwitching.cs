@@ -7,64 +7,94 @@ using UnityEngine.InputSystem;
 
 public class PlayerLaneSwitching : MonoBehaviour
 {
-    public Transform Player;
-    public int CurrentLane = 0;
-    public Vector3[] LanePositions;
+    [Header("References")]
+    public Transform Player;                // Player object (car mesh)
+    public GameObject bumper;               // Invincibility visual
 
+    [Header("Lanes")]
+    public Vector3[] LanePositions;         // X positions for lanes
+    public int CurrentLane = 1;             // Start in middle lane
+
+    [Header("Settings")]
+    private float fixedY = 0.16f;           // Lock Y position
+
+    [Header("Invincibility")]
     public bool Invincible { get; private set; } = false;
-    public GameObject bumper;
+    public float defaultInvincibleSeconds = 3f;
 
-    // sets the player's lane, 0 for left lane, 1 for middle lane, 2 for right lane
-    public void SetLane(int NewLane)
+    // Private smoothing variables
+    private Vector3 velocity = Vector3.zero;
+
+    void Start()
     {
-        if (NewLane >= 0 && NewLane < LanePositions.Length)
-        {
-            Player.position = LanePositions[NewLane];
-            CurrentLane = NewLane;
-        }
-    }
+        // Lock player to fixed Y at start
+        if (Player == null) Player = transform;
 
-    // moves the player's lane in a direction, -1 for left, 1 for right.
-    public void MoveLane(int Direction)
-    {
-        int NewLane = CurrentLane + Direction;
+        if (LanePositions.Length == 0)
+            LanePositions = new Vector3[3] {
+                new Vector3(-2f, fixedY, 0f),
+                new Vector3(0f, fixedY, 0f),
+                new Vector3(2f, fixedY, 0f)
+            };
 
-        SetLane(NewLane);
+        // Start in middle lane
+        SetLane(CurrentLane);
+        UpdateBumperVisibility();
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
+        HandleInput();
+
+        // Always lock Y
+        Vector3 pos = Player.position;
+        pos.y = fixedY;
+        Player.position = pos;
+    }
+
+    // ---------------- Input ----------------
+    private void HandleInput()
+    {
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
             MoveLane(-1);
-        }
-        else if (Input.GetKeyDown(KeyCode.D))
-        {
+        else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
             MoveLane(1);
+    }
+
+    // ---------------- Lane movement ----------------
+    public void SetLane(int newLane)
+    {
+        if (newLane >= 0 && newLane < LanePositions.Length)
+        {
+            Vector3 pos = LanePositions[newLane];
+            pos.y = fixedY;  // lock Y
+            Player.position = pos;
+            CurrentLane = newLane;
         }
     }
 
+    public void MoveLane(int direction)
+    {
+        int newLane = Mathf.Clamp(CurrentLane + direction, 0, LanePositions.Length - 1);
+        SetLane(newLane);
+    }
+
+    // ---------------- Death & Invincibility ----------------
     private void ForceKill()
     {
         Destroy(Player);
-
-        // TODO: display to the player that they have died on the UI (with help from others)
     }
 
-    // kills the player if they are not invincible. obstacle scripts can call this function when the player collides with an obstacle.
     public void TryKill()
     {
-        if (Invincible == false)
-        {
+        if (!Invincible)
             ForceKill();
-        }
     }
 
     private IEnumerator Call(Action func, float delay)
     {
         yield return new WaitForSeconds(delay);
-
-        func.Invoke();
+        func?.Invoke();
     }
 
     private void CallAfterDelay(Action func, float delay)
@@ -74,7 +104,8 @@ public class PlayerLaneSwitching : MonoBehaviour
 
     private void UpdateBumperVisibility()
     {
-        bumper.SetActive(Invincible);
+        if (bumper != null)
+            bumper.SetActive(Invincible);
     }
 
     private void EnableInvincibility()
@@ -92,7 +123,11 @@ public class PlayerLaneSwitching : MonoBehaviour
     public void MakeInvincibleForSeconds(float seconds)
     {
         EnableInvincibility();
-
         CallAfterDelay(() => DisableInvincibility(), seconds);
+    }
+
+    public void MakeInvincibleDefault()
+    {
+        MakeInvincibleForSeconds(defaultInvincibleSeconds);
     }
 }
