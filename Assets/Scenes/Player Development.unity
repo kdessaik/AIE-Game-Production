@@ -1165,8 +1165,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce3f30f0c75ee22478a09e9bdac5e6aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleCollision
-  requiredScore: 10
-  damage: 1
 --- !u!54 &464563323
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1800,8 +1798,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce3f30f0c75ee22478a09e9bdac5e6aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleCollision
-  requiredScore: 10
-  damage: 1
 --- !u!1 &964568515
 GameObject:
   m_ObjectHideFlags: 0
@@ -2137,10 +2133,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLaneSwitching
   Player: {fileID: 1022698119}
-  bumper: {fileID: 0}
-  LanePositions: []
   CurrentLane: 0
-  defaultInvincibleSeconds: 3
+  LanePositions: []
+  bumper: {fileID: 0}
 --- !u!54 &1022698121
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2240,8 +2235,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce3f30f0c75ee22478a09e9bdac5e6aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleCollision
-  requiredScore: 10
-  damage: 1
 --- !u!54 &1137217034
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2492,8 +2485,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce3f30f0c75ee22478a09e9bdac5e6aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleCollision
-  requiredScore: 10
-  damage: 1
 --- !u!54 &1162707568
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2760,7 +2751,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   target: {fileID: 1640630474}
-  followOffset: {x: 0, y: 4, z: -10}
+  offset: {x: 0, y: 10, z: -10}
   smoothSpeed: 5
 --- !u!1 &1309534430
 GameObject:
@@ -2937,10 +2928,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerLaneSwitching
   Player: {fileID: 1640630474}
-  bumper: {fileID: 1639426560}
-  LanePositions: []
   CurrentLane: 0
-  defaultInvincibleSeconds: 3
+  LanePositions: []
+  bumper: {fileID: 1639426560}
 --- !u!4 &1431202403
 Transform:
   m_ObjectHideFlags: 0
@@ -3080,8 +3070,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1592798625}
   - component: {fileID: 1592798624}
+  - component: {fileID: 1592798626}
   m_Layer: 0
-  m_Name: Background-Music
+  m_Name: GameMusic
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3099,7 +3090,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: ce94200dfb06b594889f5466dac52112, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1.11
   Loop: 1
@@ -3199,6 +3190,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1592798626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1592798623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff4cf774954d3554ba951fb7cef2dcf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameMusic
 --- !u!1001 &1614063267
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3597,8 +3600,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce3f30f0c75ee22478a09e9bdac5e6aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleCollision
-  requiredScore: 10
-  damage: 1
 --- !u!54 &1849696421
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4284,8 +4285,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce3f30f0c75ee22478a09e9bdac5e6aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObstacleCollision
-  requiredScore: 10
-  damage: 1
 --- !u!1 &2144603454
 GameObject:
   m_ObjectHideFlags: 0
