@@ -1,37 +1,30 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using TMPro; // remove if not using TextMeshPro
+using System.Collections;
 
 public class MainMenu : MonoBehaviour
 {
-    public TMP_Text bestScoreText; // use Text if not using TMP
-
-    void Start()
-    {
-        // Display best score
-        int best = PlayerPrefs.GetInt("BestScore", 0);
-        if (bestScoreText != null) bestScoreText.text = "Best Score: " + best;
-
-        // Mute the game music if it exists
-        AudioSource gameMusic = GameObject.Find("GameMusic")?.GetComponent<AudioSource>();
-        if (gameMusic != null)
-        {
-            gameMusic.mute = true;
-        }
-    }
-
     public void StartGame()
     {
-        // Load the game scene
-        SceneManager.LoadScene(1); // index 1 -> Game Scene
+        // Load the Game Scene
+        SceneManager.LoadScene(1); // Game scene index
+
+        // Start coroutine to wait for scene and GameManager
+        StartCoroutine(StartGameAfterSceneLoads());
     }
 
-    public void ExitGame()
+    private IEnumerator StartGameAfterSceneLoads()
     {
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        // Wait until the next frame to ensure the scene is loaded
+        yield return null;
+
+        // Find the GameManager in the scene
+        if (GameManager.Instance == null)
+        {
+            GameManager.Instance = FindObjectOfType<GameManager>();
+        }
+
+        // Start the game
+        GameManager.Instance?.StartGame();
     }
 }

@@ -1,50 +1,92 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance { get; private set; }
+    public static GameManager Instance;
 
+    [Header("Score")]
     public int score = 0;
-    public Text scoreText;   // assign UI text
-    public GameObject gameOverUI; // assign a UI panel to show on game over
+    public Text scoreText;
+
+    [Header("Game Over")]
+    public GameObject gameOverUI;
+
+    [Header("Game State")]
+    public bool isGameStarted = false;
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     void Start()
     {
+        // Pause the game at start
+        Time.timeScale = 0f;
+        isGameStarted = false;
+
         UpdateScoreUI();
-        if (gameOverUI) gameOverUI.SetActive(false);
+
+        if (gameOverUI != null)
+            gameOverUI.SetActive(false);
+
+        if (scoreText != null)
+            scoreText.gameObject.SetActive(false); // Hide score initially
     }
 
+    // ---------------- SCORE ----------------
     public void AddScore(int amount)
     {
+        if (!isGameStarted) return;
+
         score += amount;
         UpdateScoreUI();
+        UIManager.instance?.UpdateScore(score);
     }
 
     void UpdateScoreUI()
     {
-        if (scoreText != null) scoreText.text = "Score: " + score.ToString();
+        if (scoreText != null)
+        {
+            scoreText.gameObject.SetActive(true);
+            scoreText.text = "Score: " + score;
+        }
     }
 
+    // ---------------- GAME OVER ----------------
     public void GameOver()
     {
-        Debug.Log("Game Over!");
-        if (gameOverUI != null) gameOverUI.SetActive(true);
-        // optionally pause or stop spawning
         Time.timeScale = 0f;
+        isGameStarted = false;
+
+        if (gameOverUI != null)
+            gameOverUI.SetActive(true);
+
+        int best = PlayerPrefs.GetInt("BestScore", 0);
+        if (score > best)
+            PlayerPrefs.SetInt("BestScore", score);
+
+        UIManager.instance?.ShowGameOver(score, PlayerPrefs.GetInt("BestScore"));
     }
 
-    // Optional restart
-    public void Restart()
+    // ---------------- START GAME ----------------
+    public void StartGame()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        isGameStarted = true;
+        score = 0;
+        UpdateScoreUI();
+
+        if (gameOverUI != null)
+            gameOverUI.SetActive(false);
     }
 }
