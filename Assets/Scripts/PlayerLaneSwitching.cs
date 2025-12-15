@@ -12,7 +12,7 @@ public class PlayerLaneSwitching : MonoBehaviour
 
     [Header("Movement Settings")]
     public float moveSpeed = 8f;          // Horizontal speed
-    public float roadLimitX =3.5f;       // Left & right road boundary
+    public float roadLimitX =4.5f;       // Left & right road boundary
     private float fixedY = 0.16f;
 
     [Header("Invincibility")]
