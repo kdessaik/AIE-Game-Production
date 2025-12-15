@@ -1,48 +1,30 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class MainMenu : MonoBehaviour
 {
     public void StartGame()
     {
-        // Listen for when the scene is loaded
-        SceneManager.sceneLoaded += OnSceneLoaded;
+        // Load the Game Scene
+        SceneManager.LoadScene(1); // Game scene index
 
-        // Load the Player Development scene
-        SceneManager.LoadScene(1); // game scene index
+        // Start coroutine to wait for scene and GameManager
+        StartCoroutine(StartGameAfterSceneLoads());
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    private IEnumerator StartGameAfterSceneLoads()
     {
-        if (scene.buildIndex == 1) // ensure it’s the Player Development scene
+        // Wait until the next frame to ensure the scene is loaded
+        yield return null;
+
+        // Find the GameManager in the scene
+        if (GameManager.Instance == null)
         {
-            // Find the GameManager in the new scene
-            GameManager gm = GameManager.Instance;
-            if (gm == null)
-            {
-                gm = FindObjectOfType<GameManager>();
-                GameManager.Instance = gm; // set the static instance
-            }
-
-            // Start the game
-            gm?.StartGame();
-
-            // Stop listening
-            SceneManager.sceneLoaded -= OnSceneLoaded;
+            GameManager.Instance = FindObjectOfType<GameManager>();
         }
-    }
 
-    // ------------------ Exit the game ------------------
-    public void ExitGame()
-    {
-        Debug.Log("Exiting game...");
-
-#if UNITY_EDITOR
-        // Stop play mode in the editor
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        // Quit the application
-        Application.Quit();
-#endif
+        // Start the game
+        GameManager.Instance?.StartGame();
     }
 }

@@ -1,5 +1,5 @@
 using UnityEngine;
-using TMPro; // Required for TextMeshPro
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -7,38 +7,40 @@ public class GameManager : MonoBehaviour
 
     [Header("Score")]
     public int score = 0;
-    public TMP_Text scoreText; // Changed to TMP_Text
+    public Text scoreText;
 
     [Header("Game Over")]
     public GameObject gameOverUI;
-    public TMP_Text highScoreText; // Text for GameOverPanel high score
 
     [Header("Game State")]
     public bool isGameStarted = false;
 
     void Awake()
     {
-       
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     void Start()
     {
-        // -------------------------------
         // Pause the game at start
-        // -------------------------------
-        isGameStarted = false;       // prevent player & enemies from moving
-        Time.timeScale = 0f;         // freeze all time-based movement
+        Time.timeScale = 0f;
+        isGameStarted = false;
 
-        // -------------------------------
-        // UI Setup
-        // -------------------------------
-        UpdateScoreUI();             // make sure score text is correct, hidden by default
+        UpdateScoreUI();
 
         if (gameOverUI != null)
-            gameOverUI.SetActive(false); // hide GameOver panel
+            gameOverUI.SetActive(false);
 
         if (scoreText != null)
-            scoreText.gameObject.SetActive(false); // hide in-game score until game starts
+            scoreText.gameObject.SetActive(false); // Hide score initially
     }
 
     // ---------------- SCORE ----------------
@@ -70,19 +72,10 @@ public class GameManager : MonoBehaviour
             gameOverUI.SetActive(true);
 
         int best = PlayerPrefs.GetInt("BestScore", 0);
-
         if (score > best)
-        {
-            best = score;
-            PlayerPrefs.SetInt("BestScore", best);
-            PlayerPrefs.Save(); // ensure it’s saved
-        }
+            PlayerPrefs.SetInt("BestScore", score);
 
-        // Update GameOverPanel high score
-        if (highScoreText != null)
-            highScoreText.text = "Best Score: " + best;
-
-        UIManager.instance?.ShowGameOver(score, best);
+        UIManager.instance?.ShowGameOver(score, PlayerPrefs.GetInt("BestScore"));
     }
 
     // ---------------- START GAME ----------------
