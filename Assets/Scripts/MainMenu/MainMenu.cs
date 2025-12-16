@@ -4,27 +4,36 @@ using System.Collections;
 
 public class MainMenu : MonoBehaviour
 {
+    // ---------------- START GAME ----------------
     public void StartGame()
     {
-        // Load the Game Scene
-        SceneManager.LoadScene(1); // Game scene index
-
-        // Start coroutine to wait for scene and GameManager
-        StartCoroutine(StartGameAfterSceneLoads());
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(1);
     }
 
     private IEnumerator StartGameAfterSceneLoads()
     {
-        // Wait until the next frame to ensure the scene is loaded
         yield return null;
 
-        // Find the GameManager in the scene
         if (GameManager.Instance == null)
         {
             GameManager.Instance = FindObjectOfType<GameManager>();
         }
 
-        // Start the game
         GameManager.Instance?.StartGame();
+    }
+
+    // ---------------- EXIT GAME ----------------
+    public void ExitGame()
+    {
+        Debug.Log("Exiting Game...");
+
+        // This works in a built game
+        Application.Quit();
+
+#if UNITY_EDITOR
+        // This makes Exit work in the Unity Editor
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
     }
 }

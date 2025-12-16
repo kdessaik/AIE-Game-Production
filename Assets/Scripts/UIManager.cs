@@ -42,7 +42,7 @@ public class UIManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(0);
 
 
 
@@ -51,6 +51,16 @@ public class UIManager : MonoBehaviour
 
     public void ExitMenu()
     {
-        SceneManager.LoadScene(0);
-    }
+
+        Debug.Log("Exiting Game...");
+
+        // This works in a built game
+        Application.Quit();
+
+#if UNITY_EDITOR
+        // This makes Exit work in the Unity Editor
+        UnityEditor.EditorApplication.isPlaying = false;
+#endif
+    
+}
 }
